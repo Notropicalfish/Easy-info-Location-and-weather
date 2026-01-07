@@ -1,10 +1,12 @@
 export type Weekday = 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday'
 export enum WeatherDescription {
-  Sunny,
+  Clear,
   Cloudy,
   Rain,
   Thunderstorm,
-  PartlyCloudy
+  PartlyCloudy,
+  Fog,
+  Snow
 }
 
 export interface SevenDayForecastItem {
@@ -35,4 +37,10 @@ export interface CityData {
   state: string,
   country: string,
   location: number[] // [ lat, long ]
+}
+
+export interface WeatherData {
+  current: CurrentWeatherConditions,
+  hourly: HourlyForecastItem[],
+  daily: SevenDayForecastItem[]
 }

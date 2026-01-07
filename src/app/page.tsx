@@ -1,6 +1,7 @@
 'use client'
 
-import type { CityData } from '../extras/types.ts'
+import type { WeatherData, CityData, HourlyForecastItem, SevenDayForecastItem, Weekday } from '../extras/types.ts'
+import { WeatherDescription } from '../extras/types.ts'
 
 import { useState, useEffect } from 'react'
 
@@ -9,6 +10,115 @@ export default function Home() {
   const [ city, setCity ] = useState<CityData>()
   const [ loading, setLoading ] = useState(true)
   const [ metric, setMetric ] = useState(false)
+  const [ weatherData, setWeatherData ] = useState<WeatherData>()
+  
+  async function captureIpLocation(): Promise<CityData> {
+    const res = await fetch('https://ipapi.co/json/')
+    
+    if (res.status != 200) {
+      return {
+        town: 'New York (fallback)',
+        state: 'New York',
+        country: 'United States',
+        location: [ -74.0060, 40.7128 ]
+      }
+    }
+
+    const { city, region, country_name, latitude, longitude } = await res.json()
+
+    return { town: city, state: region, country: country_name, location: [ latitude, longitude ] }
+  }
+  
+  async function getPosition(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition((loc) => { resolve(loc) }, reject)
+    })
+  }
+
+  function weekdayFromDate(date: string): Weekday {
+    return 'Friday'
+  }
+
+  function wmoToDescription(wmo: number): WeatherDescription {
+    switch (wmo) {
+      case 0: return WeatherDescription.Clear // 'Clear sky'
+      case 1: return WeatherDescription.PartlyCloudy // 'Mainly clear, partly cloudy, and overcast'
+      case 2: return WeatherDescription.PartlyCloudy
+      case 3: return WeatherDescription.PartlyCloudy
+      case 45: return WeatherDescription.Fog // 'Fog and depositing rime fog'
+      case 48: return WeatherDescription.Fog
+      case 51: return WeatherDescription.Rain // 'Drizzle: Light, moderate, and dense intensity'
+      case 53: return WeatherDescription.Rain
+      case 55: return WeatherDescription.Rain
+      case 56: return WeatherDescription.Rain // 'freezing drizzle'
+      case 57: return WeatherDescription.Rain
+      case 61: return WeatherDescription.Rain // 'Rain: Slight, moderate and heavy intensity'
+      case 63: return WeatherDescription.Rain
+      case 65: return WeatherDescription.Rain
+      case 66: return WeatherDescription.Rain // 'Freezing Rain: Light and heavy intensity'
+      case 67: return WeatherDescription.Rain
+      case 71: return WeatherDescription.Snow // 'Snow fall: Slight, moderate, and heavy intensity'
+      case 73: return WeatherDescription.Snow
+      case 75: return WeatherDescription.Snow
+      case 77: return WeatherDescription.Snow // 'Snow grains'
+      case 80: return WeatherDescription.Rain // 'Rain showers: Slight, moderate, and violent'
+      case 81: return WeatherDescription.Rain
+      case 82: return WeatherDescription.Rain
+      case 85: return WeatherDescription.Snow // 'Snow showers slight and heavy'
+      case 86: return WeatherDescription.Snow
+      case 95: return WeatherDescription.Thunderstorm // 'Thunderstorm: Slight or moderate'
+      case 96: return WeatherDescription.Thunderstorm // 'Thunderstorm with slight and heavy hail'
+      case 99: return WeatherDescription.Thunderstorm
+      default: return WeatherDescription.Clear
+    }
+  }
+
+  async function fetchWeather() {
+    if (!city) return
+
+    setLoading(true)
+
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.location[0]}&longitude=${city.location[1]}&daily=uv_index_max,temperature_2m_max,temperature_2m_min,weather_code&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code&temperature_unit=${metric ? 'celcius' : 'fahrenheit'}&wind_speed_unit=${metric ? 'kph' : 'mph'}&precipitation_unit=${metric ? 'centimeter' : 'inch'}&timezone=auto`)
+    const data = await res.json()
+
+    const uvIndex = data.daily.uv_index_max[0]
+    const hourly: HourlyForecastItem[] = []
+    const daily: SevenDayForecastItem[] = []
+    const hours = new Date().getHours()
+
+    for (let i = hours; i < (hours + 12); i++) {
+      hourly.push({
+        time: parseInt(data.hourly.time[i].split('T')[1].split(':')[0]),
+        description: wmoToDescription(data.hourly.weather_code[i]),
+        temperature: data.hourly.temperature_2m[i]
+      })
+    }
+
+    for (let i = 0; i < 7; i++) {
+      daily.push({
+        temperature: {
+          high: data.daily.temperature_2m_max[i],
+          low: data.daily.temperature_2m_min[i]
+        },
+        weekday: weekdayFromDate(data.daily.time[i]),
+        description: wmoToDescription(data.daily.weather_code[i])
+      })
+    }
+
+    setWeatherData({
+      current: {
+        rainChance: data.current.precipitation,
+        windSpeed: data.current.wind_speed_10m,
+        uvIndex,
+        temperature: data.current.temperature_2m,
+        description: wmoToDescription(data.current.weather_code)
+      },
+      hourly,
+      daily
+    })
+
+    setLoading(false)
+  }
 
   useEffect(() => {
     async function run() {
@@ -17,7 +127,7 @@ export default function Home() {
 
         setCity(location)
         setMetric(location.country != 'United States')
-        
+
         return
       }
 
@@ -44,43 +154,9 @@ export default function Home() {
     run()
   }, [])
 
-  async function captureIpLocation(): Promise<CityData> {
-    const res = await fetch('https://ipapi.co/json/')
-
-    if (res.status != 200) {
-      return {
-        town: 'New York (fallback)',
-        state: 'New York',
-        country: 'United States',
-        location: [ -74.0060, 40.7128 ]
-      }
-    }
-
-    const { city, region, country_name, latitude, longitude } = await res.json()
-
-    return { town: city, state: region, country: country_name, location: [ latitude, longitude ] }
-  }
-
-  async function getPosition(): Promise<GeolocationPosition> {
-    return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition((loc) => { resolve(loc) }, reject)
-    })
-  }
-
-  async function fetchWeather() {
-    if (!city) return
-
-    setLoading(true)
-    
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.location[0]}&longitude=${city.location[1]}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=${metric ? 'celcius' : 'fahrenheit'}&wind_speed_unit=${metric ? 'kph' : 'mph'}&precipitation_unit=${metric ? 'centimeter' : 'inch'}&timezone=auto`)
-    const data = await res.json()
-
-    // weather thing here
-  } // setLoading(false) at the end of this function
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
+    
     fetchWeather()
   }
 
@@ -91,7 +167,7 @@ export default function Home() {
   return (
     <div className='flex flex-col md:flex-row min-h-screen p-5 font-sans bg-stone-800 gap-3'>
       {/* Left */}
-      <div className='flex flex-col min-h-screen w-full'>
+      <div className='flex flex-col gap-3 min-h-screen w-full'>
         {/* Search bar */}
         <form onSubmit={handleSubmit}>
           <input type='text' placeholder='Enter city name' className='bg-stone-700 rounded-xl p-2 w-full placeholder-stone-400' onChange={handleCityNameChange} />
@@ -115,23 +191,48 @@ export default function Home() {
               <h1 className='text-9xl font-bold text-stone-300'>☀️</h1>
             </div>
           </div>
+          
         </div> 
 
         {/* Todays Forecast */}
-        <div className='flex flex-row rounded-xl bg-stone-700 h-full w-full'>
-          <p> content </p>
+        <div className='flex flex-row rounded-xl bg-stone-700 p-5 gap-5 h-full min-h-50 w-full'>
+          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
+            <p className='font-bold text-md text-stone-400'> 1:00pm </p>
+            <p className='text-7xl'>☀️</p>
+            <p className='font-bold text-2xl text-stone-300'>sunny</p>
+          </div>
+          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
+            <p className='font-bold text-md text-stone-400'> 2:00pm </p>
+            <p className='text-7xl'>🌙</p>
+            <p className='font-bold text-2xl text-stone-300'>sunny</p>
+          </div>
+          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
+            <p className='font-bold text-md text-stone-400'> 3:00pm </p>
+            <p className='text-7xl'>🌙</p>
+            <p className='font-bold text-2xl text-stone-300'>sunny</p>
+          </div>
+          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
+            <p className='font-bold text-md text-stone-400'> 4:00pm </p>
+            <p className='text-7xl'>🌙</p>
+            <p className='font-bold text-2xl text-stone-300'>sunny</p>
+          </div>
+          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
+            <p className='font-bold text-md text-stone-400'> 5:00pm </p>
+            <p className='text-7xl'>🌙</p>
+            <p className='font-bold text-2xl text-stone-300'>sunny</p>
+          </div>
         </div>
 
         {/* Extra Info */}
-        <div className='flex rounded-xl bg-stone-700 h-full w-full'>
-          <p> content </p>
+        <div className='flex rounded-xl bg-stone-700 h-full min-h-50 w-full'>
+          <p> Extra Info </p>
         </div>
       </div>
 
       {/* Right */}
-      <div className='flex flex-col rounded-xl bg-stone-700 h-screen w-full md:w-[60%]'>
+      <div className='grid grid-cols-2 grid-rows-2 rounded-xl bg-stone-700 h-screen w-full md:w-[60%]'>
         {/* Weekly Forecast */}
-        <p> content </p>
+        
       </div>
     </div>
   )
