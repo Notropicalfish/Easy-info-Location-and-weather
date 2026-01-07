@@ -29,7 +29,8 @@ export interface CurrentWeatherConditions {
   windSpeed: number,
   uvIndex: number,
   temperature: number,
-  description: WeatherDescription
+  description: WeatherDescription,
+  relativeHumidity: number
 }
 
 export interface CityData {
