@@ -10,8 +10,18 @@ export default function Home() {
   const [ city, setCity ] = useState<CityData>()
   const [ loading, setLoading ] = useState(true)
   const [ metric, setMetric ] = useState(false)
-  const [ weatherData, setWeatherData ] = useState<WeatherData>()
-  
+  const [ weatherData, setWeatherData ] = useState<WeatherData>({
+    hourly: [],
+    daily: [],
+    current: {
+      rainChance: 0,
+      windSpeed: 0,
+      uvIndex: 0,
+      temperature: 0,
+      description: WeatherDescription.Clear
+    }
+  })
+
   async function captureIpLocation(): Promise<CityData> {
     const res = await fetch('https://ipapi.co/json/')
     
@@ -42,9 +52,9 @@ export default function Home() {
   function wmoToDescription(wmo: number): WeatherDescription {
     switch (wmo) {
       case 0: return WeatherDescription.Clear // 'Clear sky'
-      case 1: return WeatherDescription.PartlyCloudy // 'Mainly clear, partly cloudy, and overcast'
-      case 2: return WeatherDescription.PartlyCloudy
-      case 3: return WeatherDescription.PartlyCloudy
+      case 1: return WeatherDescription.Overcast // 'Mainly clear, partly cloudy, and overcast'
+      case 2: return WeatherDescription.Overcast
+      case 3: return WeatherDescription.Overcast
       case 45: return WeatherDescription.Fog // 'Fog and depositing rime fog'
       case 48: return WeatherDescription.Fog
       case 51: return WeatherDescription.Rain // 'Drizzle: Light, moderate, and dense intensity'
@@ -73,6 +83,30 @@ export default function Home() {
     }
   }
 
+  function weatherDescriptionToString(desc: WeatherDescription): string {
+    switch (desc) {
+      case WeatherDescription.Clear: return 'Clear'
+      case WeatherDescription.Cloudy: return 'Cloudy'
+      case WeatherDescription.Fog: return 'Foggy'
+      case WeatherDescription.Overcast: return 'Overcast'
+      case WeatherDescription.Rain: return 'Rain'
+      case WeatherDescription.Snow: return 'Snow'
+      case WeatherDescription.Thunderstorm: return 'T-Storm'
+    }
+  }
+
+  function weatherDescriptionToEmoji(desc: WeatherDescription): string {
+    switch (desc) {
+      case WeatherDescription.Clear: return '☀'
+      case WeatherDescription.Cloudy: return '☁'
+      case WeatherDescription.Fog: return '🌫'
+      case WeatherDescription.Overcast: return '🌥'
+      case WeatherDescription.Rain: return '🌧'
+      case WeatherDescription.Snow: return '❄'
+      case WeatherDescription.Thunderstorm: return '⛈'
+    }
+  }
+
   async function fetchWeather() {
     if (!city) return
 
@@ -86,7 +120,7 @@ export default function Home() {
     const daily: SevenDayForecastItem[] = []
     const hours = new Date().getHours()
 
-    for (let i = hours; i < (hours + 12); i++) {
+    for (let i = hours; i < (hours + 7); i++) {
       hourly.push({
         time: parseInt(data.hourly.time[i].split('T')[1].split(':')[0]),
         description: wmoToDescription(data.hourly.weather_code[i]),
@@ -107,7 +141,7 @@ export default function Home() {
 
     setWeatherData({
       current: {
-        rainChance: data.current.precipitation,
+        rainChance: data.current.precipitation * 100,
         windSpeed: data.current.wind_speed_10m,
         uvIndex,
         temperature: data.current.temperature_2m,
@@ -178,17 +212,17 @@ export default function Home() {
           <div className='flex flex-row gap-5 justify-start'>
             <div className='flex justify-between flex-col h-full w-full gap-5'>
               <div>
-                <h1 className='text-3xl font-bold text-stone-300'>Lancaster New London, Mexico</h1>
-                <p className='text-stone-400'>Chance of rain -100%</p>
+                <h1 className='text-3xl font-bold text-stone-300'>{!loading ? `${city?.town}, ${city?.state}` : 'Loading...'}</h1>
+                <p className='text-stone-400'>Chance of Rain: {!loading ? `${weatherData.current.rainChance}%` : 'Loading...'}</p>
               </div>
 
               <div>
-                <h1 className='text-6xl font-bold text-stone-300'>5000&deg;C</h1>
+                <h1 className='text-6xl font-bold text-stone-300'>{!loading ? `${weatherData.current.temperature}°${metric ? 'C' : 'F'}` : 'Loading...'}</h1>
               </div>
             </div>
 
             <div className='flex items-center'>
-              <h1 className='text-9xl font-bold text-stone-300'>☀️</h1>
+              <h1 className='text-9xl font-bold text-stone-300'>{weatherDescriptionToEmoji(weatherData.current.description)}</h1>
             </div>
           </div>
           
@@ -196,31 +230,12 @@ export default function Home() {
 
         {/* Todays Forecast */}
         <div className='flex flex-row rounded-xl bg-stone-700 p-5 gap-5 h-full min-h-50 w-full'>
-          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
-            <p className='font-bold text-md text-stone-400'> 1:00pm </p>
-            <p className='text-7xl'>☀️</p>
-            <p className='font-bold text-2xl text-stone-300'>sunny</p>
-          </div>
-          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
-            <p className='font-bold text-md text-stone-400'> 2:00pm </p>
-            <p className='text-7xl'>🌙</p>
-            <p className='font-bold text-2xl text-stone-300'>sunny</p>
-          </div>
-          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
-            <p className='font-bold text-md text-stone-400'> 3:00pm </p>
-            <p className='text-7xl'>🌙</p>
-            <p className='font-bold text-2xl text-stone-300'>sunny</p>
-          </div>
-          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
-            <p className='font-bold text-md text-stone-400'> 4:00pm </p>
-            <p className='text-7xl'>🌙</p>
-            <p className='font-bold text-2xl text-stone-300'>sunny</p>
-          </div>
-          <div className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
-            <p className='font-bold text-md text-stone-400'> 5:00pm </p>
-            <p className='text-7xl'>🌙</p>
-            <p className='font-bold text-2xl text-stone-300'>sunny</p>
-          </div>
+          {!loading ? weatherData.hourly.map((itm, i) => <div key={i} className='h-full w-full flex-col items-center justify-between py-5 flex bg-stone-600 rounded-xl'>
+            <p className='font-bold text-md text-stone-400'>{itm.time}:00</p>
+            <p className='text-7xl'>{weatherDescriptionToEmoji(itm.description)}</p>
+            <p className='text-2xl'>{Math.floor(itm.temperature)}°{metric ? 'C' : 'F'}</p>
+            <p className='font-bold text-2xl text-stone-300'>{weatherDescriptionToString(itm.description)}</p>
+          </div>) : 'Loading...'}
         </div>
 
         {/* Extra Info */}

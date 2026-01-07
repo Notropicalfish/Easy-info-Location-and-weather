@@ -4,7 +4,7 @@ export enum WeatherDescription {
   Cloudy,
   Rain,
   Thunderstorm,
-  PartlyCloudy,
+  Overcast,
   Fog,
   Snow
 }
