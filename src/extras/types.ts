@@ -26,8 +26,8 @@ export interface HourlyForecastItem {
   time: number, // from 0-24 (2 = 2am, 14 = 2pm)
   description: WeatherDescription,
   temperature: number,
-  visibility: number
   rainChance: number,
+  visibility: number
 }
 
 export interface CurrentWeatherConditions {

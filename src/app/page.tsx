@@ -28,7 +28,6 @@ export default function Home() {
     hourly: [],
     daily: [],
     current: {
-      rainChance: 0,
       windSpeed: 0,
       uvIndex: 0,
       temperature: 0,
@@ -59,7 +58,7 @@ export default function Home() {
 
     setLoading(true)
 
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.location[0]}&longitude=${city.location[1]}&daily=uv_index_max,temperature_2m_max,temperature_2m_min,weather_code&hourly=temperature_2m,visibility,weather_code&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code&temperature_unit=${tempUnit == 'C' ? 'celsius' : 'fahrenheit'}&wind_speed_unit=${speedUnit == 'km/h' ? 'kmh' : 'mph'}&precipitation_unit=${speedUnit == 'km/h' ? 'mm' : 'inch'}&timezone=auto`)
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.location[0]}&longitude=${city.location[1]}&daily=uv_index_max,temperature_2m_max,temperature_2m_min,weather_code&hourly=temperature_2m,visibility,weather_code,precipitation_probability&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&temperature_unit=${tempUnit == 'C' ? 'celsius' : 'fahrenheit'}&wind_speed_unit=${speedUnit == 'km/h' ? 'kmh' : 'mph'}&precipitation_unit=${speedUnit == 'km/h' ? 'mm' : 'inch'}&timezone=auto`)
     const data = await res.json()
 
     const uvIndex = data.daily.uv_index_max[0]
@@ -72,10 +71,11 @@ export default function Home() {
         time: parseInt(data.hourly.time[i].split('T')[1].split(':')[0]),
         description: wmoToDescription(data.hourly.weather_code[i]),
         temperature: Math.floor(data.hourly.temperature_2m[i]),
-        visibility: data.hourly.visibility[i] / 1000 // c
+        visibility: data.hourly.visibility[i],
+        rainChance: data.hourly.precipitation_probability[i]
       })
     }
-    
+
     console.log(hourly)
     for (let i = 0; i < 7; i++) {
       daily.push({
@@ -90,7 +90,6 @@ export default function Home() {
 
     setWeatherData({
       current: {
-        rainChance: Math.floor(data.current.precipitation * 100),
         windSpeed: data.current.wind_speed_10m,
         uvIndex,
         temperature: Math.floor(data.current.temperature_2m),
