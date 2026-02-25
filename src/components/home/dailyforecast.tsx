@@ -12,8 +12,8 @@ interface props {
 
 export default function DailyForecast({ loading, weatherData, tempUnit }: props) {
   return (
-    <div className='bg-slate-700 w-full md:w-[60%] p-5 rounded-xl flex flex-col gap-3'>
-      {!loading ? weatherData.daily.map((itm, i) => <div className='bg-slate-600 rounded-xl p-5 flex-row  flex items-center font-bold' key={i}>
+    <div className='bg-slate-700 w-full md:w-[60%] p-5 rounded-3xl flex flex-col gap-3'>
+      {!loading ? weatherData.daily.map((itm, i) => <div className='bg-slate-600 rounded-3xl p-5 flex-row  flex items-center font-bold' key={i}>
         <div className='flex justify-between w-full h-20 items-center'>
           <div className='flex items-start flex-col justify-start gap-1'>
             <span className='text-xl font-bold'>{itm.weekday}</span>

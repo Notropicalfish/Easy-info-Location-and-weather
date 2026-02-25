@@ -93,10 +93,10 @@ export default function SearchBar({ fetchWeather, setCity, setClockFormat, setSp
   return (
     <div className='w-full flex flex-col md:flex-row gap-2'>
       <form onSubmit={handleSubmit} className='w-full'>
-        <input type='text' placeholder='Enter city name' className='bg-slate-700 rounded-xl p-2 w-full placeholder-slate-500' onChange={handleCityNameChange} onFocus={() => { setInputActive(true) }} onBlur={() => { setInputActive(false) }} />
+        <input type='text' placeholder='Enter city name' className='bg-slate-700 rounded-3xl p-2 w-full h-15 placeholder-slate-500' onChange={handleCityNameChange} onFocus={() => { setInputActive(true) }} onBlur={() => { setInputActive(false) }} />
 
         {inputActive && <div className='relative'>
-          <div className='absolute w-full bg-slate-700 top-3 rounded-xl p-4 flex flex-col gap-2'>
+          <div className='absolute w-full bg-slate-700 top-3 rounded-3xl p-4 flex h-15 flex-col gap-2'>
             {searchCities.map((itm, i) => <button key={i} className='w-full bg-slate-600 rounded-md py-2 px-4 text-left hover:bg-slate-500 transition-colors' onMouseDown={() => { handleSelectSearchCity(i) }}>{itm.town}, {itm.state}, {itm.country}</button> )}
             {searchCities.length == 0 && <span>No results found.</span>}
           </div>
@@ -104,9 +104,9 @@ export default function SearchBar({ fetchWeather, setCity, setClockFormat, setSp
       </form>
 
       <div className='flex gap-2 w-full md:w-auto'>
-        <button onClick={toggleClockFormat} className='bg-slate-700 rounded-xl p-2 font-bold w-full md:w-20 h-10 gap-2 flex justify-center items-center'><FontAwesomeIcon icon={faClock}/>{clockFormat}</button>
-        <button onClick={toggleSpeedUnit} className='bg-slate-700 rounded-xl p-2 font-bold w-full md:w-20 h-10 gap-2'>{speedUnit.toUpperCase()}</button>
-        <button onClick={toggleTempUnit} className='bg-slate-700 rounded-xl p-2 font-bold w-full md:w-20 h-10 flex justify-center items-center'><FontAwesomeIcon icon={faTemperature0}/>°{tempUnit}</button>
+        <button onClick={toggleClockFormat} className='bg-slate-700 rounded-3xl p-2 font-bold w-full md:w-20 h-15 gap-2 flex justify-center items-center'><FontAwesomeIcon icon={faClock}/>{clockFormat}</button>
+        <button onClick={toggleSpeedUnit} className='bg-slate-700 rounded-3xl p-2 font-bold w-full md:w-20 h-15 gap-2'>{speedUnit.toUpperCase()}</button>
+        <button onClick={toggleTempUnit} className='bg-slate-700 rounded-3xl p-2 font-bold w-full md:w-20 h-15 flex justify-center items-center'><FontAwesomeIcon icon={faTemperature0}/>°{tempUnit}</button>
       </div>
     </div>
   )

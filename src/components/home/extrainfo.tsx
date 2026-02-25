@@ -10,9 +10,9 @@ interface props {
 
 export default function ExtraInfo({ loading, weatherData, speedUnit }: props) {
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 rounded-xl gap-3 p-5 bg-slate-700 h-full min-h-50 w-full'>
+    <div className='grid grid-cols-1 md:grid-cols-2 rounded-3xl gap-3 p-5 bg-slate-700 h-full min-h-50 w-full'>
 
-        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-xl'>
+        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-3xl'>
           <FontAwesomeIcon className='text-4xl flex justify-center items-center' icon={faDroplet}/>
 
           <p className='text-2xl md:text-3xl font-bold flex h-20 flex-col justify-center'>
@@ -21,7 +21,7 @@ export default function ExtraInfo({ loading, weatherData, speedUnit }: props) {
           </p>
         </div>
 
-        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-xl'>
+        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-3xl'>
           <FontAwesomeIcon className='text-4xl' icon={faCloudRain}/>
 
           <p className='text-2xl md:text-3xl h-20 justify-center font-bold flex flex-col'>
@@ -30,7 +30,7 @@ export default function ExtraInfo({ loading, weatherData, speedUnit }: props) {
           </p>
         </div>
       
-        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-xl'>
+        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-3xl'>
           <FontAwesomeIcon className='text-4xl' icon={faWind}/>
 
           <p className='text-2xl md:text-3xl h-20 justify-center font-bold flex flex-col'>
@@ -39,7 +39,7 @@ export default function ExtraInfo({ loading, weatherData, speedUnit }: props) {
           </p>
         </div>
 
-        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-xl'>
+        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-3xl'>
           <FontAwesomeIcon className='text-4xl' icon={faSun}/>
 
           <p className='text-2xl md:text-3xl h-20 justify-center font-bold flex flex-col'>
@@ -48,7 +48,7 @@ export default function ExtraInfo({ loading, weatherData, speedUnit }: props) {
           </p>
         </div>
 
-        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-xl'>
+        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-3xl'>
           <FontAwesomeIcon className='text-4xl' icon={faEye}/>
 
           <p className='text-2xl md:text-3xl h-20 justify-center font-bold flex flex-col'>
@@ -57,7 +57,7 @@ export default function ExtraInfo({ loading, weatherData, speedUnit }: props) {
           </p>
         </div>
 
-        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-xl'>
+        <div className='bg-slate-600 flex justify-center px-12 gap-3 items-center text-slate-300 h-full w-full rounded-3xl'>
           <FontAwesomeIcon className='text-4xl' icon={faGaugeSimple}/>
 
           <p className='text-2xl md:text-3xl h-20 justify-center font-bold flex flex-col'>

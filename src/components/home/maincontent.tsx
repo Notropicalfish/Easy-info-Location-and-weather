@@ -12,7 +12,7 @@ interface props {
 
 export default function MainContent({ loading, weatherData, tempUnit, city }: props) {
   return (
-    <div className='flex justify-center rounded-xl p-5 h-full bg-linear-to-t from-blue-500 to-blue-400'>
+    <div className='flex justify-center rounded-3xl p-5 h-full bg-blue-500'>
       <div className='flex justify-center gap-3 items-center'>
         <div>
           <p className='text-7xl md:text-9xl font-bold'>{weatherDescriptionToEmoji(weatherData.current.description)}</p>
